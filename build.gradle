@@ -1,0 +1,62 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext.objectboxVersion = '2.9.1'
+    repositories {
+        // central
+        maven {
+            url 'https://maven.aliyun.com/repository/public'
+        }
+        // jcenter
+        maven {
+            url 'https://maven.aliyun.com/repository/central'
+        }
+        // google
+        maven {
+            url 'https://maven.aliyun.com/repository/google'
+        }
+        // gradle-plugin
+        maven {
+            url 'https://maven.aliyun.com/repository/gradle-plugin'
+        }
+        // spring
+        maven {
+            url 'https://maven.aliyun.com/repository/spring'
+        }
+
+        // spring-plugin
+        maven {
+            url 'https://maven.aliyun.com/repository/spring-plugin'
+        }
+        // grails-core
+        maven {
+            url 'https://maven.aliyun.com/repository/grails-core'
+        }
+        // apache snapshots
+        //maven {
+        //    url 'https://maven.aliyun.com/repository/apache-snapshots'
+        //}
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:4.2.2"
+        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath "io.objectbox:objectbox-gradle-plugin:$objectboxVersion"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

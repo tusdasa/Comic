@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    >
+
+    <ImageView
+        android:id="@+id/comicCover"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:background="@color/white"
+        />
+
+    <TextView
+        android:id="@+id/comicName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignStart="@+id/comicCover"
+        android:layout_marginStart="170dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="10dp"
+        android:textSize="19sp"
+        android:gravity="center_vertical"
+        android:text="漫画名"
+        />
+
+    <TextView
+        android:id="@+id/lastUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignBottom="@+id/comicName"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="170dp"
+        android:text="最后更新于3天前"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="-65dp" />
+
+    <TextView
+        android:id="@+id/comicHeat"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignBottom="@+id/comicName"
+        android:layout_marginStart="170dp"
+        android:layout_marginEnd="5dp"
+        android:text="热度:1000"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="-130dp" />
+
+</RelativeLayout>
