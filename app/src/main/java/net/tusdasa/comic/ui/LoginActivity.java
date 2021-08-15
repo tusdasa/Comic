@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import net.tusdasa.comic.R;
+import net.tusdasa.curl.RequestUtils;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -21,6 +24,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private ProgressBar progressBar;
 
     private Button login;
+
+    private RequestUtils requestUtils = RequestUtils.getInstance();
+
+    private final Handler mHandler = new Handler(Looper.myLooper(), msg ->{
+        return false;
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +52,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         //Log.i(TAG, requestUtils.helloBoost());
 
         login.setOnClickListener(this);
-
-
     }
 
 
@@ -57,11 +64,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             String username = this.username.getText().toString();
             String password = this.password.getText().toString();
 
+
+
+
             if (!username.isEmpty() && !password.isEmpty()){
                 //Intent intent = new Intent(LoginActivity.this, ComicListActivity.class);
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
+
+            // 开启新线程
+            new Thread(()->{
+            }).start();
 
         }
     }

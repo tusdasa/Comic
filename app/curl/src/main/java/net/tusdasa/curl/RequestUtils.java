@@ -27,4 +27,6 @@ public class RequestUtils {
     // public native Calendar getCalendar();
 
     private native String helloLua();
+
+    public native String signature(String str);
 }

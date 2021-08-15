@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:8116872410818233070",
-      "lastPropertyId": "7:8200285394704807649",
+      "lastPropertyId": "8:4762157025207411468",
       "name": "Comic",
       "properties": [
         {
@@ -45,6 +45,11 @@
           "name": "category_id",
           "type": 5,
           "flags": 2
+        },
+        {
+          "id": "8:4762157025207411468",
+          "name": "introduction",
+          "type": 9
         }
       ],
       "relations": []

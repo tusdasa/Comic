@@ -1,6 +1,7 @@
 package net.tusdasa.comic;
 
 import android.app.Application;
+import android.content.Context;
 
 import net.tusdasa.comic.utils.ObjectBoxUtils;
 

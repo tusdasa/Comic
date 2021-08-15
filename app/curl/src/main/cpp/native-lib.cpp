@@ -12,6 +12,7 @@
 #include <openssl/md5.h>
 #include <android/asset_manager_jni.h>
 #include <android/asset_manager.h>
+#include <openssl/sha.h>
 
 
 #ifdef __cplusplus
@@ -53,6 +54,38 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
     return real_size;
 }
 
+
+std::string
+sha(const std::string& str1){
+    char buf[3];
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str1.c_str(), str1.size());
+    SHA256_Final(hash, &sha256);
+    std::string NewString;
+    for(unsigned char i : hash)
+    {
+        sprintf(buf,"%02x",i);
+        NewString.append(buf);
+    }
+    return NewString;
+}
+
+
+static int
+l_SayHello(lua_State *L)
+{
+    const char *d = luaL_checkstring(L, 1);//获取参数，字符串类型
+    int len = strlen(d);
+    char str[100] = "hello ";
+    strcat(str, d);
+    lua_pushstring(L, str);  // 返回给lua的值压栈
+    __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s", str);
+    return 1;
+}
+
+
 jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_requestByGet(
         JNIEnv* env,
@@ -92,7 +125,7 @@ Java_net_tusdasa_curl_RequestUtils_requestByGet(
 
         /* we pass our 'chunk' struct to the callback function */
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-        // 30 秒内接收完成
+        // 60 秒内接收完成
         curl_easy_setopt(curl,CURLOPT_TIMEOUT,60);
 
         // 证书位置
@@ -137,9 +170,9 @@ Java_net_tusdasa_curl_RequestUtils_requestByGet(
 
 JNIEXPORT jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_helloBoost(JNIEnv *env, jobject thiz) {
+
     std::string Str = "Hello from C++\n";
 
-    //-------------------------------------
     boost::chrono::system_clock::time_point p  = boost::chrono::system_clock::now();
     std::time_t t = boost::chrono::system_clock::to_time_t(p);
 
@@ -165,7 +198,6 @@ Java_net_tusdasa_curl_RequestUtils_helloBoost(JNIEnv *env, jobject thiz) {
 
     Str += "\n";
     Str += "Boost chrono says time is \n" + std::string(buffer) + "\n\n";
-    //--------------------------------------------
 
     return env->NewStringUTF(Str.c_str());;
 }
@@ -236,18 +268,6 @@ Java_net_tusdasa_curl_RequestUtils_getCalendar(JNIEnv *env, jobject thiz) {
 */
 
 
-static int
-l_SayHello(lua_State *L)
-{
-    const char *d = luaL_checkstring(L, 1);//获取参数，字符串类型
-    int len = strlen(d);
-    char str[100] = "hello ";
-    strcat(str, d);
-    lua_pushstring(L, str);  // 返回给lua的值压栈
-    __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s", str);
-    return 1;
-}
-
 JNIEXPORT jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_helloLua(JNIEnv *env, jobject thiz) {
 
@@ -269,6 +289,14 @@ Java_net_tusdasa_curl_RequestUtils_helloLua(JNIEnv *env, jobject thiz) {
     lua_close(L);
 
     return env->NewStringUTF("Hello");;
+}
+
+JNIEXPORT jstring JNICALL
+Java_net_tusdasa_curl_RequestUtils_signature(JNIEnv *env, jobject thiz, jstring str) {
+
+    std::string str1 = env->GetStringUTFChars(str,0);
+
+    return env->NewStringUTF(sha(str1).c_str());
 }
 
 #ifdef __cplusplus

@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -14,8 +15,11 @@ import net.tusdasa.comic.ui.fragment.CategoryFragment;
 import net.tusdasa.comic.ui.fragment.HomeFragment;
 import net.tusdasa.comic.ui.fragment.ProfileFragment;
 import net.tusdasa.comic.ui.fragment.SettingFragment;
+import net.tusdasa.curl.RequestUtils;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String TAG = "MainActivity";
 
 
     private ImageButton mHome;
@@ -23,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton mProfile;
     private ImageButton mSetting;
 
+
+    private RequestUtils requestUtils = RequestUtils.getInstance();
 
 
     @Override
@@ -45,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mProfile.setOnClickListener(this::onClick);
         mSetting.setOnClickListener(this::onClick);
 
+
+
+        Log.i(TAG, requestUtils.signature("1629022582v19a09bff383347f49dda80fbe612d865f313cf72ewebandroid1.0.19baf861a-0892-46bf-92bf-4bb2eacab090"));
 
     }
 
