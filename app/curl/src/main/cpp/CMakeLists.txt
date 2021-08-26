@@ -13,7 +13,9 @@ project("Comic")
 add_library(
         native-lib
         SHARED
-        native-lib.cpp)
+        native-lib.cpp
+        utils.cpp
+)
 
 add_library(lua SHARED
         ${CMAKE_SOURCE_DIR}/lua-5.4.3/src/lapi.c
@@ -119,15 +121,18 @@ set_target_properties(c++_shared
 # log
 find_library(
         log-lib
-        log )
+        log
+)
 
-target_link_libraries(native-lib
+target_link_libraries(
+        native-lib
         curl
         ssl
         crypto
         ${log-lib})
 
-target_link_libraries(native-lib
+target_link_libraries(
+        native-lib
         boost_system
         boost_chrono
         lua

@@ -2,6 +2,7 @@ package net.tusdasa.comic.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -17,7 +18,7 @@ import net.tusdasa.comic.ui.fragment.ProfileFragment;
 import net.tusdasa.comic.ui.fragment.SettingFragment;
 import net.tusdasa.curl.RequestUtils;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends FragmentActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         Log.i(TAG, requestUtils.signature("1629022582v19a09bff383347f49dda80fbe612d865f313cf72ewebandroid1.0.19baf861a-0892-46bf-92bf-4bb2eacab090"));
+        Log.i(TAG,requestUtils.helloLua());
+
 
     }
 

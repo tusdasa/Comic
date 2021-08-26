@@ -64,12 +64,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             String username = this.username.getText().toString();
             String password = this.password.getText().toString();
 
-
-
-
             if (!username.isEmpty() && !password.isEmpty()){
-                //Intent intent = new Intent(LoginActivity.this, ComicListActivity.class);
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ComicListActivity.class);
+               // Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }
 

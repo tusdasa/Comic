@@ -6,6 +6,7 @@
     tools:context=".ui.fragment.HomeFragment">
 
     <TextView
+        android:id="@+id/home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#6BABBD"

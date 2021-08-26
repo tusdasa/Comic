@@ -9,169 +9,45 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <ctime>
-#include <openssl/md5.h>
 #include <android/asset_manager_jni.h>
 #include <android/asset_manager.h>
-#include <openssl/sha.h>
+#include <boost/json.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
+#include "utils.h"
 
 #ifdef __cplusplus
-extern "C" {
-#include <lua-5.4.3/lua.h>
-#include <lua-5.4.3/lualib.h>
-#include <lua-5.4.3/lauxlib.h>
-};
 extern"C" {
 #endif
-
-#define  LOG_TAG  "native-lib"
-
-
-// 结构体
-struct MemoryStruct {
-    char *memory;
-    size_t size;
-};
-
-
-static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    size_t real_size = size * nmemb;
-    auto *mem = (struct MemoryStruct *)userp;
-
-    char *ptr = (char *) realloc(mem->memory, mem->size + real_size + 1);
-    if(!ptr) {
-       __android_log_print(ANDROID_LOG_INFO, "native-lib", "not enough memory realloc returned NULL");
-       return 0;
-    }
-
-    mem->memory = ptr;
-    memcpy(&(mem->memory[mem->size]), contents, real_size);
-    mem->size += real_size;
-    mem->memory[mem->size] = 0;
-
-    return real_size;
-}
-
-
-std::string
-sha(const std::string& str1){
-    char buf[3];
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str1.c_str(), str1.size());
-    SHA256_Final(hash, &sha256);
-    std::string NewString;
-    for(unsigned char i : hash)
-    {
-        sprintf(buf,"%02x",i);
-        NewString.append(buf);
-    }
-    return NewString;
-}
-
-
-static int
-l_SayHello(lua_State *L)
-{
-    const char *d = luaL_checkstring(L, 1);//获取参数，字符串类型
-    int len = strlen(d);
-    char str[100] = "hello ";
-    strcat(str, d);
-    lua_pushstring(L, str);  // 返回给lua的值压栈
-    __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s", str);
-    return 1;
-}
-
 
 jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_requestByGet(
         JNIEnv* env,
         jobject obj, jstring url) {
-    __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "CURL_VERSION = %s",curl_version());
+    // 获取URL
+    const char *URL = env->GetStringUTFChars(url, nullptr);
 
-    const char *URL = env->GetStringUTFChars(url, 0);
-
-    CURL *curl;
-
-    CURLcode res;
-
-    struct MemoryStruct chunk{};
-
-    /* will be grown as needed by the realloc above */
-    chunk.memory = (char *) malloc(1);
-    /* no data at this point */
-    chunk.size = 0;
-    // 默认初始
-    curl_global_init(CURL_GLOBAL_DEFAULT);
-
-    std::string s;
-
-    // 简易句柄
-    curl = curl_easy_init();
-
-    if (curl){
-        // 设置URL
-        curl_easy_setopt(curl, CURLOPT_URL, URL);
-        // 关闭证书校验
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-        // 关闭主机名校验
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-
-        // send all data to this function
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-
-        /* we pass our 'chunk' struct to the callback function */
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-        // 60 秒内接收完成
-        curl_easy_setopt(curl,CURLOPT_TIMEOUT,60);
-
-        // 证书位置
-        //curl_easy_setopt(curl,CURLOPT_CAINFO,"");
-
-        // 连接超时
-        curl_easy_setopt( curl, CURLOPT_CONNECTTIMEOUT, 60);
-
-        // 请求
-        res = curl_easy_perform(curl);
-
-        // 没有请求成功
-        if(res != CURLE_OK){
-            // 输出日志
-            __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "curl_easy_perform() failed %s", curl_easy_strerror(res));
-            __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "curl_easy_perform() failed %d",res);
-            // 清理资源
-            curl_easy_cleanup(curl);
-        // 请求成功
-        }
-
-        if (chunk.size >0 ){
-            s = chunk.memory;
-        }else{
-            s = "";
-        }
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%zu", chunk.size);
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%d", s.length());
-        // 申请的内存 要释放
-        free(chunk.memory);
-        // 避免野指针
-        chunk.memory = nullptr;
-    } else{
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "init curl failed");
-    }
-    // 释放curl 指针
-    curl_global_cleanup();
     // 返回数据
     //return env->NewStringUTF(body);
-    return env->NewStringUTF(s.c_str());
+    return env->NewStringUTF(
+            CurlRequest(
+                    URL,
+                    "9a09bff383347f49dda80fbe612d865f313cf72e",
+                    "9baf861a-0892-46bf-92bf-4bb2eacab090",
+                    "web"
+                    ).c_str()
+                    );
 }
 
 JNIEXPORT jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_helloBoost(JNIEnv *env, jobject thiz) {
 
-    std::string Str = "Hello from C++\n";
+    boost::property_tree::ptree ptre;
+
+    std::stringstream  ss1;
+
+    ptre.put("title","Hello from C++");
 
     boost::chrono::system_clock::time_point p  = boost::chrono::system_clock::now();
     std::time_t t = boost::chrono::system_clock::to_time_t(p);
@@ -188,18 +64,20 @@ Java_net_tusdasa_curl_RequestUtils_helloBoost(JNIEnv *env, jobject thiz) {
     std::string Ver_Min = boost::lexical_cast<std::string>(ver_min);
     std::string Ver_Pat = boost::lexical_cast<std::string>(ver_pat);
 
-    Str += "Boost version: " + Ver_Maj + "." + Ver_Min + "." + Ver_Pat + "\n";
+    ptre.put("Boost version", Ver_Maj + "." + Ver_Min + "." + Ver_Pat);
 
-    Str += "built with NDK version: " + std::string(BOOST_BUILT_WITH_NDK_VERSION) + "\n";
+    ptre.put("built with NDK version", std::string(BOOST_BUILT_WITH_NDK_VERSION));
 
 #if defined(__ANDROID_API__)
-    Str += "native Api level: " + std::to_string(__ANDROID_API__) + "\n " ;
+    ptre.put("Native Api level", std::to_string(__ANDROID_API__));
 #endif
+    ptre.put("Boost chrono says time is", std::string(buffer));
 
-    Str += "\n";
-    Str += "Boost chrono says time is \n" + std::string(buffer) + "\n\n";
+    boost::property_tree::write_json(ss1, ptre);
 
-    return env->NewStringUTF(Str.c_str());;
+    // std::string jsonContent = ss1.str();
+
+    return env->NewStringUTF(ss1.str().c_str());;
 }
 
 JNIEXPORT jstring JNICALL
@@ -271,32 +149,17 @@ Java_net_tusdasa_curl_RequestUtils_getCalendar(JNIEnv *env, jobject thiz) {
 JNIEXPORT jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_helloLua(JNIEnv *env, jobject thiz) {
 
-    // 创建lua状态机
-    lua_State *L = luaL_newstate();
-    // 打开Lua状态机中所有Lua标准库
-    luaL_openlibs(L);
-    //注册C函数到lua
-    lua_register(L, "SayHello", l_SayHello);
-    //lua中调用c函数
-    const char* testLuaFunction = "print(SayHello('lijia'))";
-    // 执行Lua命令。
-    if(luaL_dostring(L, testLuaFunction)){
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "Failed to invoke.");
-    }else{
-        __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "%s", testLuaFunction);
-    }
-    // 清除Lua
-    lua_close(L);
+    std::string sss = runLua("Lua");
 
-    return env->NewStringUTF("Hello");;
+    return env->NewStringUTF(sss.c_str());
 }
 
 JNIEXPORT jstring JNICALL
 Java_net_tusdasa_curl_RequestUtils_signature(JNIEnv *env, jobject thiz, jstring str) {
 
-    std::string str1 = env->GetStringUTFChars(str,0);
+    std::string source = env->GetStringUTFChars(str,0);
 
-    return env->NewStringUTF(sha(str1).c_str());
+    return env->NewStringUTF(sha(source).c_str());
 }
 
 #ifdef __cplusplus
